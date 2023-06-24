@@ -62,11 +62,7 @@ const Signup:React.FC<SignupProps> = () => {
     >
         Register
     </button>
-    <button className='flex w-full justify-end' >
-        <a href='#' className='text-sm block text-brand-orange hover:underline w-full text-right'>
-            Forgot Password?
-        </a>
-    </button>
+  
     <div className='text-sm font-medium text-gray-300'>
         Already have an account{" "}
         <a href='#' className='text-blue-700 hover:underline'>
