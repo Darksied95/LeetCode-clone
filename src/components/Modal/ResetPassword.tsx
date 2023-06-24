@@ -1,8 +1,6 @@
 import React from 'react';
 
-type ResetPasswordProps = {
-    
-};
+type ResetPasswordProps = {};
 
 const ResetPassword:React.FC<ResetPasswordProps> = () => {
     

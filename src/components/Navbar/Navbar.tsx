@@ -10,7 +10,7 @@ type NavbarProps = {
 
 const Navbar:React.FC<NavbarProps> = () => {
     const setAuthModalState = useSetRecoilState(authModalState)
-    const handleClick = () => { setAuthModalState(prev => ({...prev , isOpen : true})) }
+    const handleClick = () => { setAuthModalState(prev => ({type:'login' , isOpen : true})) }
 
 
     return (
