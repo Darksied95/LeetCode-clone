@@ -6,7 +6,7 @@ type AuthModalState = {
 }
 
 const initialValue :AuthModalState = {
-    isOpen : true,
+    isOpen : false,
     type : 'login'
 }
 
