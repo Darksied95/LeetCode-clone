@@ -12,8 +12,6 @@ type AuthModalProps = {
 
 const AuthModal:React.FC<AuthModalProps> = () => {
     const authModal = useRecoilValue(authModalState)
-    const setAuthModalState = useSetRecoilState(authModalState)
-
     const handleCloseModal = useCloseModal()
 
     return <>
@@ -46,13 +44,13 @@ function useCloseModal(){
     }
 
     useEffect(() => {
-        const handleEsc = (e : KeyboardEvent) =>{
+        const handleEsc = (e : KeyboardEvent) =>{                        
             if(e.key === 'Escape'){
                 closeModal()
             } 
         }
         window.addEventListener('keyup', handleEsc)
-        return () =>{ window.removeEventListener('keydown', handleEsc)}
+        return () =>{ window.removeEventListener('keyup', handleEsc)}
     }, [])
 
     return closeModal
