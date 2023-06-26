@@ -1,6 +1,9 @@
 import { authModalState } from '@/atoms/authModalAtom';
 import React, { useState } from 'react';
 import { useSetRecoilState } from 'recoil';
+import {useCreateUserWithEmailAndPassword} from 'react-firebase-hooks/auth'
+import { auth } from '@/firebase/firebase';
+import { useRouter } from 'next/router';
 
 type SignupProps = {
     
@@ -8,16 +11,32 @@ type SignupProps = {
 
 const Signup:React.FC<SignupProps> = () => {
     const setAuthModalState = useSetRecoilState(authModalState)
-    const [formFields, setFormFields] = useState({email :'', name:'' , password:'' });
     const handleClick = () => {setAuthModalState(prev => ({...prev, type:'login'}))}
+    const [formFields, setFormFields] = useState({email :'', name:'' , password:'' });
+    const router = useRouter();
+    const [
+        createUserWithEmailAndPassword,
+        user,
+        loading,
+        error,
+      ] = useCreateUserWithEmailAndPassword(auth);
+
 
     const handleChange =(e :React.ChangeEvent<HTMLInputElement>) =>{   
         setFormFields(prev => ({...prev , [e.target.name] : e.target.value}))        
     }
 
-    const handleRegister =(e :React.FormEvent<HTMLFormElement> )=>{
+    const handleRegister = async(e :React.FormEvent<HTMLFormElement> )=>{
         e.preventDefault()
-        console.log(formFields);
+
+        try {
+            const user = await createUserWithEmailAndPassword(formFields.email, formFields.password)
+            if(!user) return 
+            router.push('/')
+        } catch (error : any) {
+            alert(error.message)
+        }
+  
     }
     
     return <form className='space-y-6 px-6 pb-4' onSubmit={handleRegister}>
