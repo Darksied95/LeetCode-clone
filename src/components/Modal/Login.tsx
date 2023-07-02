@@ -1,7 +1,7 @@
 import { authModalState } from '@/atoms/authModalAtom';
 import { auth } from '@/firebase/firebase';
 import {  useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { useSetRecoilState } from 'recoil';
 
@@ -30,12 +30,15 @@ const Login:React.FC<LoginProps> = () => {
         if(!inputs.email || !inputs.password) return alert('Please fill in all fields')
         try {
             const  user = await signInWithEmailAndPassword(inputs.email, inputs.password)
-            if(!user ) return
+            if(!user )  return 
+            
             router.push('/')
         } catch (error : any) {
             alert(error.message)
         }
     }
+
+
 
     return <form className='space-y-6 px-6 pb-4' onSubmit={handleSubmit}>
     <h3 className='text-xl font-medium text-white'>Sign in to LeetClone</h3>
@@ -76,7 +79,7 @@ const Login:React.FC<LoginProps> = () => {
         text-sm px-5 py-2.5 text-center bg-brand-orange hover:bg-brand-orange-s'
         
     >
-        Log In
+       {loading ? "Logging..." : 'Log in' }
     </button>
     <button className='flex w-full justify-end' onClick={() => handleClick('forgotPassword')}>
         <a href='#' className='text-sm block text-brand-orange hover:underline w-full text-right'>
