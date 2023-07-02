@@ -31,14 +31,13 @@ const Login:React.FC<LoginProps> = () => {
         try {
             const  user = await signInWithEmailAndPassword(inputs.email, inputs.password)
             if(!user )  return 
-            
             router.push('/')
         } catch (error : any) {
             alert(error.message)
         }
     }
 
-
+useEffect(() => {error && alert(error) }, [error]);
 
     return <form className='space-y-6 px-6 pb-4' onSubmit={handleSubmit}>
     <h3 className='text-xl font-medium text-white'>Sign in to LeetClone</h3>
