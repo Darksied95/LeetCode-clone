@@ -1,6 +1,8 @@
 import React from 'react';
 import { problems } from '@/mockProblem/problems';
 import {BsCheckCircle} from 'react-icons/bs'
+import {AiFillYoutube} from 'react-icons/ai'
+
 import Link from 'next/link';
 
 type ProblemsTableProps = {
@@ -32,7 +34,12 @@ const ProblemsTable:React.FC<ProblemsTableProps> = () => {
                                 {doc.difficulty}
                             </td>
                             <td className='px-6 py-4' >
-                                {doc.difficulty}
+                                {doc.category}
+                            </td>
+                            <td className='px-6 py-4' >
+                                {doc.videoId 
+                                ? <AiFillYoutube fontSize={'18'} className='cursor-pointer hover:text-red-600'/>
+                                : <p className='text-gray-400'>Coming soon</p>}
                             </td>
                         </tr>
                     )
