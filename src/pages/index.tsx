@@ -1,8 +1,9 @@
 
+import TopBar from './../components/TopBar/TopBar';
 export default function Home() {
   return (
-    <main>
-      Hello world
+    <main className='bg-dark-layer-2 min-h-screen'>
+      <TopBar />
     </main>
   )
 }
