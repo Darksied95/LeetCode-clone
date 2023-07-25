@@ -8,6 +8,7 @@ import { authModalState } from "@/atoms/authModalAtom";
 import Image from "next/image";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { BsList } from "react-icons/bs";
+import Timer from "../Timer/Timer";
 
 type TopBarProps = {
   problemPage?: boolean;
@@ -77,7 +78,7 @@ const TopBar: React.FC<TopBarProps> = ({ problemPage }) => {
               </button>
             </Link>
           )}
-
+          {problemPage && <Timer />}
           {user && (
             <div className="cursor-pointer group relative">
               <Image
