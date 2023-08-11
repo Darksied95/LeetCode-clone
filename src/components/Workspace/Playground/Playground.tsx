@@ -10,7 +10,7 @@ type PlagroundProps = {};
 
 const Plaground: React.FC<PlagroundProps> = () => {
   return (
-    <div className="flex flex-col bg-dark-layer-1 relative">
+    <div className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
       <PreferenceNavbar />
       <Split
         className="h-[calc(100vh-94px)]"
