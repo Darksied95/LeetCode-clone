@@ -9,6 +9,9 @@ import EditorFooter from "./EditorFooter";
 type PlagroundProps = {};
 
 const Plaground: React.FC<PlagroundProps> = () => {
+  const boilerPlate = `function twoSum(nums, target){
+  //Write your code here
+  };`;
   return (
     <div className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
       <PreferenceNavbar />
@@ -20,7 +23,7 @@ const Plaground: React.FC<PlagroundProps> = () => {
       >
         <div className="w-full overflow-auto">
           <CodeMirror
-            value="const a = 1;"
+            value={boilerPlate}
             theme={vscodeDark}
             extensions={[javascript()]}
             style={{ fontSize: 16 }}
