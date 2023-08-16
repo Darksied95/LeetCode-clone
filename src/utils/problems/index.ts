@@ -14,5 +14,5 @@ export const problems: ProblemMap = {
   "reverse-linked-list": reverseLinkedList,
   "jump-game": jumpGame,
   "search-a-2d-matrix": search2DMatrix,
-  "valid-parenthesis": validParentheses,
+  "valid-parentheses": validParentheses,
 };
