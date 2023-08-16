@@ -11,7 +11,7 @@ type WorkspaceProps = {
 const Workspace: React.FC<WorkspaceProps> = ({ problem }) => {
   return (
     <Split className="split" minSize={0}>
-      <ProblemDescription />
+      <ProblemDescription problem={problem} />
       <Plaground />
     </Split>
   );
