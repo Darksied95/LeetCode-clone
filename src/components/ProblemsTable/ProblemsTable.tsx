@@ -60,7 +60,8 @@ const ProblemsTable: React.FC<ProblemsTableProps> = ({
               <td className="px-6 py-4">
                 <Link
                   className="hover:text-blue-600 cursor-pointer"
-                  href={`/problems/${problem.id}`}
+                  href={problem.link ? problem.link : `/problems/${problem.id}`}
+                  target="_blank"
                 >
                   {problem.title}
                 </Link>
@@ -125,7 +126,6 @@ function useGetProblems(
 
   useEffect(() => {
     (async () => {
-      //   setLoadingProblems(true);
       const q = query(
         collection(firestore, "problems"),
         orderBy("order", "asc")
