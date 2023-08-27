@@ -3,8 +3,10 @@ import { AiFillLike, AiFillDislike } from "react-icons/ai";
 import { TiStarOutline } from "react-icons/ti";
 import { BsCheck2Circle } from "react-icons/bs";
 import { DbProblem, Problem } from "@/utils/types/problem";
-import { firestore } from "@/firebase/firebase";
+import { auth, firestore } from "@/firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { problems } from "@/utils/problems";
 
 type ProblemDescriptionProps = {
   problem: Problem;
@@ -132,4 +134,48 @@ function useGetCurrentProblem(problemId: string) {
   }, [problemId]);
 
   return { loading, currentProblem, problemDifficultyClass };
+}
+
+function useGetUsersDataOnProblem(problemId: string) {
+  const [data, setData] = useState({
+    liked: false,
+    disliked: false,
+    starred: false,
+    solved: false,
+  });
+  const [user] = useAuthState(auth);
+
+  useEffect(() => {
+    async function getUsersDataOnProblem() {
+      const userRef = doc(firestore, "users", user!.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        const {
+          solvedProblem,
+          likedProblem,
+          dislikedProblems,
+          starredProblems,
+        } = data;
+        setData({
+          liked: likedProblem.includes(problemId),
+          solved: solvedProblem.includes(problemId),
+          disliked: dislikedProblems.includes(problemId),
+          starred: starredProblems.includes(problemId),
+        });
+      }
+    }
+
+    if (user) getUsersDataOnProblem();
+    return () => {
+      setData({
+        liked: false,
+        disliked: false,
+        starred: false,
+        solved: false,
+      });
+    };
+  }, [problemId, user]);
+
+  return { ...data, setData };
 }
