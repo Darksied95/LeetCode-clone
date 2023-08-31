@@ -6,7 +6,6 @@ import { DbProblem, Problem } from "@/utils/types/problem";
 import { auth, firestore } from "@/firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { problems } from "@/utils/problems";
 
 type ProblemDescriptionProps = {
   problem: Problem;
@@ -15,6 +14,9 @@ type ProblemDescriptionProps = {
 const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
   const { currentProblem, loading, problemDifficultyClass } =
     useGetCurrentProblem(problem.id);
+
+  const { liked, disliked, starred, solved, setData } =
+    useGetUsersDataOnProblem(problem.id);
   return (
     <div className="bg-dark-layer-1">
       <div className="flex h-11 w-full items-center pt-2 bg-dark-layer-2 text-white overflow-x-hidden">
@@ -47,7 +49,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
                   <BsCheck2Circle />
                 </div>
                 <div className="flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-dark-gray-6">
-                  <AiFillLike />
+                  <AiFillLike className={liked ? "text-dark-blue-s" : ""} />
                   <span className="text-xs">{currentProblem.likes}</span>
                 </div>
                 <div className="flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-green-s text-dark-gray-6">
@@ -152,14 +154,15 @@ function useGetUsersDataOnProblem(problemId: string) {
       if (userSnap.exists()) {
         const data = userSnap.data();
         const {
-          solvedProblem,
-          likedProblem,
+          solvedProblems,
+          likedProblems,
           dislikedProblems,
           starredProblems,
         } = data;
+
         setData({
-          liked: likedProblem.includes(problemId),
-          solved: solvedProblem.includes(problemId),
+          liked: likedProblems.includes(problemId),
+          solved: solvedProblems.includes(problemId),
           disliked: dislikedProblems.includes(problemId),
           starred: starredProblems.includes(problemId),
         });
