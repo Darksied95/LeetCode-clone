@@ -86,6 +86,59 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
     setUpdating(false);
   }
 
+  async function handleDislike() {
+    if (!user) {
+      toast.error("Please Login", { position: "top-center", theme: "dark" });
+      return;
+    }
+
+    if (updating) return;
+    setUpdating(true);
+
+    await runTransaction(firestore, async (transaction) => {
+      const userRef = doc(firestore, "users", user.uid);
+      const problemRef = doc(firestore, "problems", problem.id);
+      const userDoc = await transaction.get(userRef);
+      const problemDoc = await transaction.get(problemRef);
+      if (userDoc.exists() && problemDoc.exists()) {
+        if (disliked) {
+          transaction.update(userRef, {
+            dislikedProblems: userDoc.data().dislikedProblems.filter((id: string) => id !== problem.id),
+          });
+
+          transaction.update(problemRef, {
+            dislikes: problemDoc.data().dislikes - 1,
+          });
+
+          setCurrentProblem((prev) => (prev ? { ...prev, dislikes: prev.dislikes - 1 } : null));
+          setData((prev) => ({ ...prev, disliked: false }));
+        } else if (liked) {
+          transaction.update(userRef, {
+            dislikedProblems: [...userDoc.data().dislikedProblems, problem.id],
+            likedProblems: userDoc.data().likedProblems.filter((id: string) => id !== problem.id),
+          });
+          transaction.update(problemRef, {
+            dislikes: problemDoc.data().dislikes + 1,
+            likes: problemDoc.data().likes - 1,
+          });
+          setCurrentProblem((prev) => (prev ? { ...prev, dislikes: prev.dislikes + 1, likes: prev.likes - 1 } : null));
+          setData((prev) => ({ ...prev, disliked: true, liked: false }));
+        } else {
+          transaction.update(userRef, {
+            dislikedProblems: [...userDoc.data().dislikedProblems, problem.id],
+          });
+          transaction.update(problemRef, {
+            dislikes: problemDoc.data().dislikes + 1,
+          });
+          setCurrentProblem((prev) => (prev ? { ...prev, dislikes: prev.dislikes + 1 } : null));
+          setData((prev) => ({ ...prev, disliked: true }));
+        }
+      }
+    });
+
+    setUpdating(false);
+  }
+
   return (
     <div className="bg-dark-layer-1">
       <div className="flex h-11 w-full items-center pt-2 bg-dark-layer-2 text-white overflow-x-hidden">
@@ -120,8 +173,15 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
                   )}
                   <span className="text-xs">{currentProblem.likes}</span>
                 </div>
-                <div className="flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-green-s text-dark-gray-6">
-                  <AiFillDislike />
+                <div
+                  className="flex items-center cursor-pointer hover:bg-dark-fill-3 space-x-1 rounded p-[3px]  ml-4 text-lg transition-colors duration-200 text-green-s text-dark-gray-6"
+                  onClick={handleDislike}
+                >
+                  {!updating ? (
+                    <AiFillDislike className={disliked ? "text-dark-blue-s" : ""} />
+                  ) : (
+                    <AiOutlineLoading3Quarters className="animate-spin" />
+                  )}
                   <span className="text-xs">{currentProblem.dislikes}</span>
                 </div>
                 <div className="cursor-pointer hover:bg-dark-fill-3  rounded p-[3px]  ml-4 text-xl transition-colors duration-200 text-green-s text-dark-gray-6 ">
