@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { AiFillLike, AiFillDislike, AiOutlineLoading3Quarters } from "react-icons/ai";
+import { AiFillLike, AiFillDislike, AiOutlineLoading3Quarters, AiFillStar } from "react-icons/ai";
 import { TiStarOutline } from "react-icons/ti";
 import { BsCheck2Circle } from "react-icons/bs";
 import { DbProblem, Problem } from "@/utils/types/problem";
 import { auth, firestore } from "@/firebase/firebase";
-import { doc, getDoc, runTransaction } from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, getDoc, runTransaction, updateDoc } from "firebase/firestore";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { toast } from "react-toastify";
 
@@ -139,6 +139,32 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
     setUpdating(false);
   }
 
+  async function handleStar() {
+    if (!user) {
+      toast.error("Please Login", { position: "top-center", theme: "dark" });
+      return;
+    }
+
+    if (updating) return;
+
+    setUpdating(true);
+    if (!starred) {
+      const userRef = doc(firestore, "users", user.uid);
+      await updateDoc(userRef, {
+        starredProblems: arrayUnion(problem.id),
+      });
+      setData((prev) => ({ ...prev, starred: true }));
+    } else {
+      const userRef = doc(firestore, "users", user.uid);
+      await updateDoc(userRef, {
+        starredProblems: arrayRemove(problem.id),
+      });
+      setData((prev) => ({ ...prev, starred: false }));
+    }
+
+    setUpdating(false);
+  }
+
   return (
     <div className="bg-dark-layer-1">
       <div className="flex h-11 w-full items-center pt-2 bg-dark-layer-2 text-white overflow-x-hidden">
@@ -184,8 +210,19 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
                   )}
                   <span className="text-xs">{currentProblem.dislikes}</span>
                 </div>
-                <div className="cursor-pointer hover:bg-dark-fill-3  rounded p-[3px]  ml-4 text-xl transition-colors duration-200 text-green-s text-dark-gray-6 ">
-                  <TiStarOutline />
+                <div
+                  className="cursor-pointer hover:bg-dark-fill-3  rounded p-[3px]  ml-4 text-xl transition-colors duration-200 text-green-s text-dark-gray-6 "
+                  onClick={handleStar}
+                >
+                  {!updating ? (
+                    starred ? (
+                      <AiFillStar className="text-dark-yellow" />
+                    ) : (
+                      <TiStarOutline />
+                    )
+                  ) : (
+                    <AiOutlineLoading3Quarters className="animate-spin" />
+                  )}
                 </div>
               </div>
             )}
