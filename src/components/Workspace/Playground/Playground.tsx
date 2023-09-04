@@ -6,6 +6,12 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { javascript } from "@codemirror/lang-javascript";
 import EditorFooter from "./EditorFooter";
 import { Problem } from "@/utils/types/problem";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, firestore } from "@/firebase/firebase";
+import { toast } from "react-toastify";
+import { useRouter } from "next/router";
+import { problems } from "@/utils/problems";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 
 type PlaygroundProps = {
   problem: Problem;
@@ -14,12 +20,68 @@ type PlaygroundProps = {
 
 const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess }) => {
   const [activeTestCaseId, setActiveTestCaseId] = useState(0);
+  const [userCode, setUserCode] = useState(problem.starterCode);
+  const [user] = useAuthState(auth);
+  const {
+    query: { pid },
+  } = useRouter();
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Please login to submit your code", { position: "top-center", autoClose: 3000, theme: "dark" });
+      return;
+    }
+
+    try {
+      const cb = new Function(`return ${userCode}`)();
+      const success = problems[pid as string].handlerFunction(cb);
+      if (success) {
+        toast.success("Congrats! All tests passed!", {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "dark",
+        });
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+        }, 4000);
+
+        const userRef = doc(firestore, "users", user.uid);
+        await updateDoc(userRef, {
+          solvedProblems: arrayUnion(pid),
+        });
+      }
+    } catch (error: any) {
+      if (error.message.startsWith("AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:")) {
+        toast.error("Oops! One or more test case failed", {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "dark",
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "dark",
+        });
+      }
+    }
+  };
+  function handleChange(value: string) {
+    setUserCode(value);
+  }
+
   return (
     <div className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
       <PreferenceNavbar />
       <Split className="h-[calc(100vh-94px)]" direction="vertical" sizes={[60, 40]} minSize={60}>
         <div className="w-full overflow-auto">
-          <CodeMirror value={problem.starterCode} theme={vscodeDark} extensions={[javascript()]} style={{ fontSize: 16 }} />
+          <CodeMirror
+            value={problem.starterCode}
+            theme={vscodeDark}
+            extensions={[javascript()]}
+            style={{ fontSize: 16 }}
+            onChange={handleChange}
+          />
         </div>
         <div className="w-full px-5 overflow-auto">
           <div className="flex h-10 items-center space-x-6">
@@ -54,7 +116,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess }) => {
             <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
               {problem.examples[activeTestCaseId].outputText}
             </div>
-            <EditorFooter />
+            <EditorFooter handleSubmit={handleSubmit} />
           </div>
         </div>
       </Split>
