@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PreferenceNavbar from "./PreferenceNavbar/PreferenceNavbar";
 import Split from "react-split";
 import CodeMirror from "@uiw/react-codemirror";
@@ -21,11 +21,12 @@ type PlaygroundProps = {
 
 const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved }) => {
   const [activeTestCaseId, setActiveTestCaseId] = useState(0);
-  const [userCode, setUserCode] = useState(problem.starterCode);
+  let [userCode, setUserCode] = useState(problem.starterCode);
   const [user] = useAuthState(auth);
   const {
     query: { pid },
   } = useRouter();
+
   const handleSubmit = async () => {
     if (!user) {
       toast.error("Please login to submit your code", { position: "top-center", autoClose: 3000, theme: "dark" });
@@ -33,6 +34,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
     }
 
     try {
+      userCode = userCode.slice(userCode.indexOf(problem.starterCode));
       const cb = new Function(`return ${userCode}`)();
       const success = problems[pid as string].handlerFunction(cb);
       if (success) {
@@ -70,20 +72,24 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
   };
   function handleChange(value: string) {
     setUserCode(value);
+    localStorage.setItem(`code-${pid}`, JSON.stringify(value));
   }
+
+  useEffect(() => {
+    const code = localStorage.getItem(`code-${pid}`);
+    if (user) {
+      setUserCode(code ? JSON.parse(code) : problem.starterCode);
+    } else {
+      setUserCode(problem.starterCode);
+    }
+  }, [pid, problem.starterCode, user]);
 
   return (
     <div className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
       <PreferenceNavbar />
       <Split className="h-[calc(100vh-94px)]" direction="vertical" sizes={[60, 40]} minSize={60}>
         <div className="w-full overflow-auto">
-          <CodeMirror
-            value={problem.starterCode}
-            theme={vscodeDark}
-            extensions={[javascript()]}
-            style={{ fontSize: 16 }}
-            onChange={handleChange}
-          />
+          <CodeMirror value={userCode} theme={vscodeDark} extensions={[javascript()]} style={{ fontSize: 16 }} onChange={handleChange} />
         </div>
         <div className="w-full px-5 overflow-auto">
           <div className="flex h-10 items-center space-x-6">
