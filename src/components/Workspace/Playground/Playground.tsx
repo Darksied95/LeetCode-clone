@@ -36,23 +36,27 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
     try {
       userCode = userCode.slice(userCode.indexOf(problem.starterCode));
       const cb = new Function(`return ${userCode}`)();
-      const success = problems[pid as string].handlerFunction(cb);
-      if (success) {
-        toast.success("Congrats! All tests passed!", {
-          position: "top-center",
-          autoClose: 3000,
-          theme: "dark",
-        });
-        setSuccess(true);
-        setTimeout(() => {
-          setSuccess(false);
-        }, 4000);
+      const handler = problems[pid as string].handlerFunction;
 
-        const userRef = doc(firestore, "users", user.uid);
-        await updateDoc(userRef, {
-          solvedProblems: arrayUnion(pid),
-        });
-        setSolved(true);
+      if (typeof handler === "function") {
+        const success = handler(cb);
+        if (success) {
+          toast.success("Congrats! All tests passed!", {
+            position: "top-center",
+            autoClose: 3000,
+            theme: "dark",
+          });
+          setSuccess(true);
+          setTimeout(() => {
+            setSuccess(false);
+          }, 4000);
+
+          const userRef = doc(firestore, "users", user.uid);
+          await updateDoc(userRef, {
+            solvedProblems: arrayUnion(pid),
+          });
+          setSolved(true);
+        }
       }
     } catch (error: any) {
       if (error.message.startsWith("AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:")) {
