@@ -19,9 +19,20 @@ type PlaygroundProps = {
   setSolved: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+export interface Isettings {
+  fontSize: string;
+  settingsModalsOpen: boolean;
+  dropdownIsOpen: boolean;
+}
+
 const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved }) => {
   const [activeTestCaseId, setActiveTestCaseId] = useState(0);
   let [userCode, setUserCode] = useState(problem.starterCode);
+  const [settings, setSettings] = useState<Isettings>({
+    fontSize: "16px",
+    settingsModalsOpen: true,
+    dropdownIsOpen: false,
+  });
   const [user] = useAuthState(auth);
   const {
     query: { pid },
@@ -90,10 +101,16 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
 
   return (
     <div className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
-      <PreferenceNavbar />
+      <PreferenceNavbar settings={settings} setSettings={setSettings} />
       <Split className="h-[calc(100vh-94px)]" direction="vertical" sizes={[60, 40]} minSize={60}>
         <div className="w-full overflow-auto">
-          <CodeMirror value={userCode} theme={vscodeDark} extensions={[javascript()]} style={{ fontSize: 16 }} onChange={handleChange} />
+          <CodeMirror
+            value={userCode}
+            theme={vscodeDark}
+            extensions={[javascript()]}
+            style={{ fontSize: settings.fontSize }}
+            onChange={handleChange}
+          />
         </div>
         <div className="w-full px-5 overflow-auto">
           <div className="flex h-10 items-center space-x-6">
