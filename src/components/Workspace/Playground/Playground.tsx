@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { problems } from "@/utils/problems";
 import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 type PlaygroundProps = {
   problem: Problem;
@@ -28,8 +29,9 @@ export interface Isettings {
 const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved }) => {
   const [activeTestCaseId, setActiveTestCaseId] = useState(0);
   let [userCode, setUserCode] = useState(problem.starterCode);
+  const [fontSize, setFontSize] = useLocalStorage("Icc-fontSize", "16px");
   const [settings, setSettings] = useState<Isettings>({
-    fontSize: "16px",
+    fontSize,
     settingsModalsOpen: false,
     dropdownIsOpen: false,
   });
