@@ -30,7 +30,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
   let [userCode, setUserCode] = useState(problem.starterCode);
   const [settings, setSettings] = useState<Isettings>({
     fontSize: "16px",
-    settingsModalsOpen: true,
+    settingsModalsOpen: false,
     dropdownIsOpen: false,
   });
   const [user] = useAuthState(auth);

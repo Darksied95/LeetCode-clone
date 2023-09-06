@@ -48,7 +48,10 @@ const PreferenceNavbar: React.FC<PreferenceNavbarProps> = ({ settings, setSettin
 
       <div className="flex items-center m-2">
         <button className="preferenceBtn group">
-          <div className="h-4 w-4 text-dark-gray-6 font-bold text-lg">
+          <div
+            className="h-4 w-4 text-dark-gray-6 font-bold text-lg"
+            onClick={() => setSettings((prev) => ({ ...prev, settingsModalsOpen: true }))}
+          >
             <AiOutlineSetting />
           </div>
           <span className="preferenceBtn-tooltip">Settings</span>
@@ -61,7 +64,7 @@ const PreferenceNavbar: React.FC<PreferenceNavbarProps> = ({ settings, setSettin
           <span className="preferenceBtn-tooltip">Full Screen</span>
         </button>
       </div>
-      {settings.settingsModalsOpen && <SettingsModal />}
+      {settings.settingsModalsOpen && <SettingsModal settings={settings} setSettings={setSettings} />}
     </div>
   );
 };
